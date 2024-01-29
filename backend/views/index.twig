@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Messages</title>
+    <style>
+        body {
+            margin: 0 auto;
+            max-width: 800px;
+            padding: 0 20px;
+        }
+
+        .container {
+            border: 2px solid #dedede;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        .darker {
+            border-color: #ccc;
+            background-color: #ddd;
+        }
+
+        .container::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+
+        .container img {
+            float: left;
+            max-width: 60px;
+            width: 100%;
+            margin-right: 20px;
+            border-radius: 50%;
+        }
+
+        .container img.right {
+            float: right;
+            margin-left: 20px;
+            margin-right: 0;
+        }
+
+        .time-right {
+            float: right;
+            color: #aaa;
+        }
+
+        .time-left {
+            float: left;
+            color: #999;
+        }
+        .inputbox{
+            margin-bottom: 5px;
+            position: fixed;
+            bottom: 5px;
+            max-width: 780px;
+            left: auto;
+   
+        }
+       
+        input[type="text"]{
+            border:2px solid blue;
+            border-radius:11px;
+            padding:5px;
+            box-sizing: border-box;
+           width:100%;
+          
+        }
+    </style>
+  
+</head>
+<body>
+    <h2>Chat Messages</h2>
+    <div id="div1"></div>
+   
+    <div class="container">
+        <div class=" inputbox">
+        <form id="form" action="">
+            <input id="input" autocomplete="off" type="text" />
+             <input id="inputid" placeholder="receiver_id" autocomplete="off" type="text" />
+             <input id="inputroomid" placeholder="romm_no" autocomplete="off" type="text" />
+
+            <button>Send</button>
+        </form>
+    </div>
+    </div>
+
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const form = document.getElementById('form');
+        const input = document.getElementById('input');
+        const userid = document.getElementById('inputid');
+        const room = document.getElementById('inputroomid');
+        const div1 = document.getElementById('div1');
+  
+
+        console.log(socket.id);
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            if (input.value || userid.value || room.value) {
+                const containerClass = 'container';
+                const imgSrc = 'https://via.placeholder.com/60';
+                    if(input.value){
+                div1.innerHTML += `
+                    <div class="${containerClass}">
+                        <img src="${imgSrc}" alt="Avatar" style="width:100%;">
+                        <p class="time-left">${input.value}</p>
+                        <span class="time-right">11:00</span>
+                    </div>
+                `;
+                console.log(socket.id)
+                console.log(userid.value)
+                socket.emit('chat', input.value,userid.value,room.value);
+                input.value = '';
+            }else {
+                 console.log(socket.id);
+                socket.emit('chat', input.value,userid.value,room.value);
+            }
+            }
+        });
+
+        socket.on('chat', (msg) => {
+            if (msg.length>1) {
+                const containerClass = 'container darker';
+                const imgSrc = 'https://via.placeholder.com/60';
+                   console.log(socket.id)
+              
+                div1.innerHTML += `
+                    <div class="${containerClass}">
+                        <img src="${imgSrc}" alt="Avatar" class="right" style="width:100%;">
+                        <p class="time-right">${msg}</p>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
